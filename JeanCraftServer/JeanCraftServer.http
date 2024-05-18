@@ -1,0 +1,6 @@
+@JeanCraftServer_HostAddress = http://localhost:5200
+
+GET {{JeanCraftServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
