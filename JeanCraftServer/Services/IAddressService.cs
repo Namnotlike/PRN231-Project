@@ -1,13 +1,14 @@
-﻿using JeanCraftLibrary.Models;
+﻿using JeanCraftLibrary.Dto;
+using JeanCraftLibrary.Models;
 
 namespace JeanCraftServer.Services
 {
     public interface IAddressService
     {
         Task<IEnumerable<Address>> GetAddressesByUserId(Guid userId);
-        Task<Address> GetAddressByIdAndUserId(string id, Guid userId);
+        Task<Address> GetAddressByIdAndUserId(Guid id, Guid userId);
         Task<Address> CreateAddress(Address address);
-        Task<Address> UpdateAddress(Address address);
-        Task<bool> DeleteAddress(string id, Guid userId);
+        Task<AddressDTO> UpdateAddress(Guid id,AddressDTO address);
+        Task<bool> DeleteAddress(Guid id, Guid userId);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using JeanCraftLibrary.Repositories;
 using JeanCraftLibrary.Dto;
 using JeanCraftLibrary.Models;
+using System.Net.Mail;
+using System.Net;
 
 namespace JeanCraftServer.Services
 {
@@ -52,6 +54,11 @@ namespace JeanCraftServer.Services
             return await _userRepository.GetUserByID(userID);
         }
 
+        public async Task<AccountDTO?> GetUserDTOByID(Guid userID)
+        {
+            return await _userRepository.GetUserDTOByID(userID);
+        }
+
         public async Task<Account> RegisterUser(string? fileName, Account user)
         {
             Account account = new Account()
@@ -67,6 +74,11 @@ namespace JeanCraftServer.Services
             return await _userRepository.RegisterUser(fileName, user);
         }
 
+        public async Task<string> ResetPassWord(ResetPassWordRequest request)
+        {
+            return SendOTP(request.Email, Constants.MAIL, Constants.SERVER, Constants.PORT, Constants.USERNAME, Constants.PASSWORD);
+        }
+
         public async Task<Account?> UpdateUserProfile(Account user)
         {
             return await _userRepository.UpdateUser(user);
@@ -80,6 +92,51 @@ namespace JeanCraftServer.Services
         private bool VerifyPassword(string hashedPassword, string password)
         {
             return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+
+        public string SendOTP(string toEmail, string fromEmail, string smtpServer, int smtpPort, string smtpUsername, string smtpPassword)
+        {
+            string otp = GenerateOTP(6);  // Generate a 6-digit OTP
+
+            using (SmtpClient client = new SmtpClient(smtpServer, smtpPort))
+            {
+                client.EnableSsl = true;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
+
+                using (MailMessage mail = new MailMessage(fromEmail, toEmail))
+                {
+                    mail.Subject = "Your OTP for Password Reset";
+                    mail.Body = $"Hello,\nYour OTP for password reset is: {otp}\n\nBest Regards";
+
+                    try
+                    {
+                        client.Send(mail);
+                        Console.WriteLine("OTP sent successfully.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Failed to send OTP: " + ex.Message);
+                    }
+                }
+            }
+            return otp;
+            // Optional: Save OTP to database for later verification
+        }
+
+    private string GenerateOTP(int length)
+        {
+            string numbers = "1234567890";
+            Random random = new Random();
+            string otp = string.Empty;
+
+            for (int i = 0; i < length; i++)
+            {
+                otp += numbers[random.Next(numbers.Length)];
+            }
+
+            return otp;
         }
     }
 }

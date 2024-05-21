@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace JeanCraftLibrary.Models;
 
@@ -18,7 +19,7 @@ public partial class Product
     public double? Price { get; set; }
 
     public double? Size { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
 
     public virtual DesignOne? DesignOne { get; set; }
@@ -26,7 +27,7 @@ public partial class Product
     public virtual DesignThree? DesignThree { get; set; }
 
     public virtual DesignTwo? DesignTwo { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual ProductInventory? ProductInventory { get; set; }

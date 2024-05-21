@@ -33,5 +33,13 @@
         static public string STATUS_CODE_OK = "01";
         static public string STATUS_CODE_ERROR = "02";
         static public string MESSAGE_SUCCESS = "Data transaction success";
+
+        /*Send Mail*/
+        static public string MAIL = "namppse160820@fpt.edu.vn";
+        static public string SERVER = "smtp.gmail.com";
+        static public int PORT = 587;
+        static public string USERNAME = "namppse160820@fpt.edu.vn";
+        static public string PASSWORD = "imqk gqyk vifk myfs";
+
     }
 }

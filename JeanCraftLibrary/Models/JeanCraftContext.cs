@@ -58,6 +58,7 @@ public partial class JeanCraftContext : DbContext
                 .HasColumnName("UserID");
             entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Image).HasMaxLength(1000);
+            entity.Property(e => e.Phonenumber).HasMaxLength(20);
             entity.Property(e => e.UserName).HasMaxLength(50);
 
             entity.HasOne(d => d.Role).WithMany(p => p.Accounts)

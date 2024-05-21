@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace JeanCraftLibrary.Models;
 
@@ -14,6 +15,6 @@ public partial class DesignTwo
     public virtual Component? FabricColorNavigation { get; set; }
 
     public virtual Component? FinishingNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

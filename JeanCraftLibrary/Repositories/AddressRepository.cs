@@ -1,4 +1,6 @@
-﻿using JeanCraftLibrary.Models;
+﻿using AutoMapper;
+using JeanCraftLibrary.Dto;
+using JeanCraftLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,10 +13,12 @@ namespace JeanCraftLibrary.Repositories
     public class AddressRepository : IAddressRepository
     {
         private readonly JeanCraftContext _context;
+        private readonly IMapper _mapper;
 
-        public AddressRepository(JeanCraftContext context)
+        public AddressRepository(JeanCraftContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Address>> GetAddressesByUserId(Guid userId)
@@ -24,9 +28,9 @@ namespace JeanCraftLibrary.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Address> GetAddressById(string addressId)
+        public async Task<Address> GetAddressById(Guid addressId)
         {
-            return await _context.Addresses.FindAsync(addressId);
+            return await _context.Addresses.AsNoTracking().FirstOrDefaultAsync(a => a.Id == addressId);
         }
 
         public async Task<Address> CreateAddress(Address address)
@@ -38,12 +42,20 @@ namespace JeanCraftLibrary.Repositories
 
         public async Task<Address> UpdateAddress(Address address)
         {
-            _context.Addresses.Update(address);
+            var existingEntity = await _context.Addresses.FirstOrDefaultAsync(a => a.Id == address.Id);
+            if (existingEntity != null)
+            {
+                _context.Entry(existingEntity).CurrentValues.SetValues(address);
+            }
+            else
+            {
+                _context.Addresses.Update(address);
+            }
             await _context.SaveChangesAsync();
             return address;
         }
 
-        public async Task<bool> DeleteAddress(string addressId)
+        public async Task<bool> DeleteAddress(Guid addressId)
         {
             var address = await _context.Addresses.FindAsync(addressId);
             if (address == null)

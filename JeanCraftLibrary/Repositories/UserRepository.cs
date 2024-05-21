@@ -1,4 +1,5 @@
 ﻿
+using AutoMapper;
 using JeanCraftLibrary.Dto;
 using JeanCraftLibrary.Models;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,12 @@ namespace JeanCraftLibrary.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly JeanCraftContext _context;
+        private readonly IMapper _mapper;
 
-        public UserRepository(JeanCraftContext context)
+        public UserRepository(JeanCraftContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<Account?> ChangePassword(Account user, string newPassword)
@@ -42,11 +45,20 @@ namespace JeanCraftLibrary.Repositories
             return await _context.Accounts.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<Account?> GetUserByID(Guid userID)
+        public async Task<AccountDTO?> GetUserDTOByID(Guid userID)
         {
-            return await _context.Accounts.FirstOrDefaultAsync(u => u.UserId == userID);
-        }
+            var account = await _context.Accounts.Include(a => a.Addresses)
+            .FirstOrDefaultAsync(a => a.UserId == userID);
 
+            if (account == null)
+            {
+                return null;
+            }
+            // Map Account to AccountDTO
+            var accountDTO = _mapper.Map<AccountDTO>(account);
+            //AddressDTO addressDTO = _mapper.Map<AddressDTO>(address);
+            return accountDTO;
+        }
         public async Task<Account> RegisterUser(string? fileName, Account user)
         {
             try
@@ -67,6 +79,7 @@ namespace JeanCraftLibrary.Repositories
             if (userToUpdate != null)
             {
                 userToUpdate.UserName = user.UserName;
+                userToUpdate.Phonenumber = user.Phonenumber;
                 userToUpdate.Email = user.Email;
                 userToUpdate.Image = user.Image;
                 userToUpdate.Password = user.Password;
@@ -76,6 +89,11 @@ namespace JeanCraftLibrary.Repositories
                 return userToUpdate;
             }
             return null;
+        }
+
+        public async Task<Account?> GetUserByID(Guid userID)
+        {
+            return await _context.Accounts.FirstOrDefaultAsync(u => u.UserId == userID);
         }
     }
 }

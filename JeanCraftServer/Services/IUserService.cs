@@ -10,11 +10,13 @@ namespace JeanCraftServer.Services
 {
     public interface IUserService
     {
-        Task<Account?> GetUserByID(Guid userID);
+        Task<AccountDTO?> GetUserDTOByID(Guid userID);
+        Task<Account?> GetUserByID(Guid userID); 
         Task<Account?> GetUserByEmail(string email);
         Task<Account?> ChangePassword(ChangePWForm userDto);
         Task<Account> RegisterUser(string? fileName, Account user);
         Task<Account> CreateUserGoogle(GoogleLoginForm userDto);
         Task<Account?> UpdateUserProfile(Account user);
+        Task<string> ResetPassWord(ResetPassWordRequest request);
     }
 }

@@ -61,7 +61,7 @@ namespace JeanCraftServer.Controllers
                     UserID = user.UserId,
                     FullName = user.UserName,
                     Email = user.Email,
-                    PhoneNumber = "",
+                    PhoneNumber = user.Phonenumber,
                     Role = user.RoleId == Guid.Parse(JeanCraftLibrary.Dto.Constants.ROLE_USER) ? "User" : "Admin",
                     Token = token,
                 };
@@ -97,7 +97,7 @@ namespace JeanCraftServer.Controllers
                 UserID = user.UserId,
                 FullName = user.UserName,
                 Email = user.Email,
-                PhoneNumber = "11111",
+                PhoneNumber = user.Phonenumber,
                 Role = user.RoleId == Guid.Parse(JeanCraftLibrary.Dto.Constants.ROLE_USER) ? "User" : "Admin",
                 Token = token,
             };
@@ -132,7 +132,7 @@ namespace JeanCraftServer.Controllers
                     UserID = user.UserId,
                     FullName = user.UserName,
                     Email = user.Email,
-                    PhoneNumber = "111111",
+                    PhoneNumber = user.Phonenumber,
                     Role = user.RoleId == Guid.Parse(JeanCraftLibrary.Dto.Constants.ROLE_USER) ? "User" : "Admin",
                     Token = token,
                 };
@@ -144,6 +144,20 @@ namespace JeanCraftServer.Controllers
                 return Ok(ResponseHandle<LoginResponse>.Error("Error occur in server"));
             }
         }
+
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPassword([FromForm] ResetPassWordRequest request)
+        {
+            //var user = await _userservice.getuserbyemail(request.email);
+            //if(user == null) {
+            //    return ok(responsehandle<loginresponse>.error("invalid email"));
+            //}
+            
+
+            var otp = await _userService.ResetPassWord(request);
+            return Ok(ResponseHandle<string>.Success(otp));
+        }
+
         private string GenerateJwtToken(Account user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -152,6 +166,7 @@ namespace JeanCraftServer.Controllers
             {
                 Subject = new ClaimsIdentity(new[]
                 {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Role, "1")

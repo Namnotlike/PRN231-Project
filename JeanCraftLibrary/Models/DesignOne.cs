@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace JeanCraftLibrary.Models;
 
@@ -30,6 +31,6 @@ public partial class DesignOne
     public virtual Component? FrontPocketNavigation { get; set; }
 
     public virtual Component? LengthNavigation { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

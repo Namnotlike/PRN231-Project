@@ -3,6 +3,7 @@ using JeanCraftLibrary.Models;
 using JeanCraftServer.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace JeanCraftServer.Controllers
 {
@@ -21,7 +22,7 @@ namespace JeanCraftServer.Controllers
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetProfile(Guid userId)
         {
-            var account = await _userService.GetUserByID(userId);
+            var account = await _userService.GetUserDTOByID(userId);
             if (account == null)
             {
                 return NotFound("User not found.");
@@ -31,12 +32,22 @@ namespace JeanCraftServer.Controllers
 
         // PUT: api/Profile/update
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateProfile([FromBody] Account account)
+        public async Task<IActionResult> UpdateProfile([FromBody] AccountDTO accountDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+
+            var account = new Account
+            {
+                UserId = accountDto.UserId,
+                UserName = accountDto.UserName,
+                Phonenumber = accountDto.Phonenumber,
+                Email = accountDto.Email,
+                Image = accountDto.Image,
+                Addresses = accountDto.Addresses
+            };
 
             var updatedAccount = await _userService.UpdateUserProfile(account);
             if (updatedAccount == null)
@@ -45,17 +56,5 @@ namespace JeanCraftServer.Controllers
             }
             return Ok(updatedAccount);
         }
-
-        //// POST: api/Profile/change-password
-        //[HttpPost("change-password")]
-        //public async Task<IActionResult> ChangePassword([FromBody] ChangePWForm changePasswordDto)
-        //{
-        //    var result = await _userService.ChangePassword(changePasswordDto);
-        //    if (result == null)
-        //    {
-        //        return BadRequest("Failed to change password. Check the old password.");
-        //    }
-        //    return Ok("Password changed successfully.");
-        //}
     }
 }

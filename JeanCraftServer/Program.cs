@@ -6,6 +6,8 @@ using JeanCraftServer.Services;
 using Microsoft.EntityFrameworkCore;
 using System.Data.Common;
 using JeanCraftLibrary.Models;
+using AutoMapper;
+using JeanCraftLibrary.Mapper;
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 // Add services to the container.
@@ -16,6 +18,9 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddDbContext<JeanCraftContext>(options => options.UseSqlServer(connectionString));
+
+// Register Mapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 //CORS
 builder.Services.AddCors(options =>

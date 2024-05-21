@@ -1,4 +1,6 @@
-﻿using JeanCraftLibrary.Models;
+﻿using AutoMapper;
+using JeanCraftLibrary.Dto;
+using JeanCraftLibrary.Models;
 using JeanCraftLibrary.Repositories;
 
 namespace JeanCraftServer.Services
@@ -6,10 +8,12 @@ namespace JeanCraftServer.Services
     public class AddressService : IAddressService
     {
         private readonly IAddressRepository _addressRepository;
+        private readonly IMapper _mapper;
 
-        public AddressService(IAddressRepository addressRepository)
+        public AddressService(IAddressRepository addressRepository, IMapper mapper)
         {
             _addressRepository = addressRepository;
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<Address>> GetAddressesByUserId(Guid userId)
@@ -17,7 +21,7 @@ namespace JeanCraftServer.Services
             return await _addressRepository.GetAddressesByUserId(userId);
         }
 
-        public async Task<Address> GetAddressByIdAndUserId(string id, Guid userId)
+        public async Task<Address> GetAddressByIdAndUserId(Guid id, Guid userId)
         {
             var address = await _addressRepository.GetAddressById(id);
             if (address != null && address.UserId == userId)
@@ -27,17 +31,50 @@ namespace JeanCraftServer.Services
             return null;
         }
 
-        public async Task<Address> CreateAddress(Address address)
+        public async Task<Address> CreateAddress(Address addressdto)
         {
-            return await _addressRepository.CreateAddress(address);
+            if (addressdto.UserId == null || addressdto.UserId == Guid.Empty)
+            {
+                throw new ArgumentException("UserId is required and cannot be empty.");
+            }
+
+            var newAddress = new Address
+            {
+                Id = Guid.NewGuid(),
+                UserId = addressdto.UserId,
+                Type = addressdto.Type,
+                Detail = addressdto.Detail
+            };
+
+            return await _addressRepository.CreateAddress(newAddress);
         }
 
-        public async Task<Address> UpdateAddress(Address address)
+        public async Task<AddressDTO> UpdateAddress(Guid id, AddressDTO addressdto)
         {
-            return await _addressRepository.UpdateAddress(address);
-        }
+            var address = await _addressRepository.GetAddressById(id);
+            if (address == null)
+            {
+                return null;
+            }
 
-        public async Task<bool> DeleteAddress(string id, Guid userId)
+            if (!string.IsNullOrEmpty(addressdto.Type))
+            {
+                address.Type = addressdto.Type;
+            }
+            if (!string.IsNullOrEmpty(addressdto.Detail))
+            {
+                address.Detail = addressdto.Detail;
+            }
+
+
+            await _addressRepository.UpdateAddress(address);
+
+            // Trả về đối tượng AddressDTO đã được cập nhật
+            return _mapper.Map<AddressDTO>(address);
+        }
+    
+
+        public async Task<bool> DeleteAddress(Guid id, Guid userId)
         {
             var address = await GetAddressByIdAndUserId(id, userId);
             if (address == null)
